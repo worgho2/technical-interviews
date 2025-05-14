@@ -1,0 +1,5 @@
+.sst
+sst-env.d.ts
+pnpm-lock.yaml
+# docs/consentsAPI.yaml
+CHANGELOG.md

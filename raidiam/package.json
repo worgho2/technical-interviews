@@ -1,0 +1,30 @@
+{
+  "name": "raidiam-technical-task",
+  "version": "1.2.0",
+  "author": "Otávio Baziewicz Filho",
+  "description": "Raidiam Technical Task",
+  "type": "module",
+  "engines": {
+    "node": "^20.17.0",
+    "pnpm": "^9.10.0"
+  },
+  "scripts": {
+    "postinstall": "sst install",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "cd packages/consents && ./gradlew build"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.4",
+    "@types/aws-lambda": "8.10.147",
+    "@types/node": "^20",
+    "env-cmd": "^10.1.0",
+    "prettier": "3.4.2",
+    "sst": "3.4.56",
+    "typescript": "5.5.4",
+    "zod": "^3.24.1"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}

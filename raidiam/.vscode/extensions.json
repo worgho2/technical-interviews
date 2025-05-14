@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "oracle-labs-graalvm.graal-cloud-native-pack",
+    "esbenp.prettier-vscode",
+    "ms-azuretools.vscode-docker",
+    "vscjava.vscode-gradle"
+  ]
+}
