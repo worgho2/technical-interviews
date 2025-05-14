@@ -1,0 +1,35 @@
+# SST
+.sst
+
+# Node.js
+node_modules/
+.node_repl_history
+*.tsbuildinfo
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Logs
+logs
+*.log
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# dotenv environment variable files
+.env
+.env.*
+!.env.example
+
+# Java
+.micronaut/
+.gradle
+build/
+target/
+out/
+
+# Misc
+.DS_Store
+Thumbs.db

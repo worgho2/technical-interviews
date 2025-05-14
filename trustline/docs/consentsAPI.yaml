@@ -1,0 +1,226 @@
+openapi: 3.0.0
+info:
+  title: Consents API
+  version: 1.0.0
+  description: |
+    API for managing the creation, retrieval, and revocation of consents.
+
+    # Important information
+    - After a POST request to create a consent, the STATUS returned in the response should be `AWAITING_AUTHORISATION`.
+    - The STATUS should change to `AUTHORISED` after user's interaction.
+    - All dates used in this API should follow the [RFC3339](https://tools.ietf.org/html/rfc3339) standard and "zulu" format (UTC).
+
+tags:
+  - name: Consents
+    description: Operations for creating, consulting and revoking the consent given by the user.
+
+paths:
+  /consents:
+    post:
+      tags:
+        - Consents
+      summary: Create a new consent
+      operationId: createConsent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentRequest'
+      responses:
+        '201':
+          description: Consent created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentResponse'
+        '400':
+          description: Invalid input
+
+  /consents/{consentId}:
+    get:
+      tags:
+        - Consents
+      summary: Get details of a specific consent
+      operationId: getConsent
+      parameters:
+        - name: consentId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the consent to retrieve
+      responses:
+        '200':
+          description: Consent details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentResponse'
+        '400':
+          description: Invalid input
+        '404':
+          description: Consent not found
+
+    put:
+      tags:
+        - Consents
+      summary: Update an existing consent
+      operationId: updateConsent
+      parameters:
+        - name: consentId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the consent to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentUpdateRequest'
+      responses:
+        '200':
+          description: Consent updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentResponse'
+        '400':
+          description: Invalid input
+        '404':
+          description: Consent not found
+
+    delete:
+      tags:
+        - Consents
+      summary: Delete a specific consent
+      operationId: deleteConsent
+      parameters:
+        - name: consentId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the consent to delete
+      responses:
+        '204':
+          description: Consent deleted successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: Consent not found
+
+components:
+  schemas:
+    ConsentRequest:
+      type: object
+      required:
+        - userId
+        - permissions
+        - status
+      properties:
+        userId:
+          type: string
+          example: 'user-12345'
+        permissions:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            type: string
+            enum:
+              - READ_DATA
+              - WRITE_DATA
+              - DELETE_DATA
+          example: ['READ_DATA', 'WRITE_DATA']
+          description: |
+            Specifies the types of access permissions to other APIs that are not relevant to be mentioned here.
+        status:
+          type: string
+          enum:
+            - AUTHORISED
+            - AWAITING_AUTHORISATION
+            - REJECTED
+          example: 'AWAITING_AUTHORISATION'
+
+    ConsentUpdateRequest:
+      type: object
+      required:
+        - status
+        - permissions
+      properties:
+        status:
+          type: string
+          enum:
+            - AUTHORISED
+            - AWAITING_AUTHORISATION
+            - REJECTED
+          example: 'REJECTED'
+        permissions:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            type: string
+            enum:
+              - READ_DATA
+              - WRITE_DATA
+              - DELETE_DATA
+          example: ['WRITE_DATA']
+          description: |
+            Specifies the types of access permissions to other APIs that are not relevant to be mentioned here.
+
+    ConsentResponse:
+      type: object
+      required:
+        - consentId
+        - userId
+        - permissions
+        - status
+      properties:
+        consentId:
+          type: string
+          example: 'consent-67890'
+        userId:
+          type: string
+          example: 'user-12345'
+        permissions:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            type: string
+            enum:
+              - READ_DATA
+              - WRITE_DATA
+              - DELETE_DATA
+          example: ['READ_DATA', 'WRITE_DATA']
+          description: |
+            Specifies the types of access permissions to other APIs that are not relevant to be mentioned here.
+        status:
+          type: string
+          enum:
+            - AUTHORISED
+            - AWAITING_AUTHORISATION
+            - REJECTED
+          example: 'AUTHORISATION_PENDING'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2024-11-19T10:30:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2024-11-19T11:00:00Z'
+        meta:
+          type: object
+          properties:
+            requestDateTime:
+              type: string
+              format: date-time
+              maxLength: 20
+              example: '2021-05-21T08:30:00Z'
+              description: |
+                Date and time of the query, according to RFC-3339 specification, UTC format.

@@ -1,0 +1,11 @@
+micronaut:
+  application:
+    name: consents
+  server:
+    max-request-size: 5242880
+    cors:
+      enabled: true
+
+mongodbConfiguration:
+  databaseName: 'consents'
+  collectionName: 'consents'

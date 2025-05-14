@@ -1,0 +1,62 @@
+name: CI
+
+on: ['push']
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: true
+
+permissions:
+  contents: read
+  checks: write
+  id-token: write
+
+jobs:
+  continuous-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'oracle'
+          java-version: '21'
+          cache: 'gradle'
+          cache-dependency-path: packages/consents/*.gradle
+
+      - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 8.11.1
+
+      - run: |
+          pnpm install
+          pnpm format:check
+
+      - run: |
+          cd packages/consents 
+          ./gradlew build --no-daemon --continue
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: 'true'
+
+      - uses: mikepenz/action-junit-report@v3
+        if: success() || failure()
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'

@@ -1,0 +1,25 @@
+applicationType: default
+defaultPackage: worgho2.consents
+testFramework: junit
+sourceLanguage: java
+buildTool: gradle
+features:
+  [
+    graalvm,
+    gradle,
+    http-client-test,
+    java,
+    java-application,
+    junit,
+    logback,
+    micronaut-aot,
+    micronaut-build,
+    micronaut-http-validation,
+    netty-server,
+    properties,
+    readme,
+    serialization-jackson,
+    shade,
+    spotless,
+    static-resources,
+  ]

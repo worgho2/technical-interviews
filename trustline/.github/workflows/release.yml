@@ -1,0 +1,81 @@
+name: RELEASE
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+  deployments: write
+  checks: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release-please
+        with:
+          token: ${{ secrets.GH_PAT }}
+          release-type: node
+
+      - uses: actions/checkout@v4
+        if: ${{ steps.release-please.outputs.release_created }}
+        with:
+          fetch-depth: 1
+
+      - uses: pnpm/action-setup@v4
+        if: ${{ steps.release-please.outputs.release_created }}
+        with:
+          version: 9
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        if: ${{ steps.release-please.outputs.release_created }}
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - uses: docker/setup-buildx-action@v3
+        if: ${{ steps.release-please.outputs.release_created }}
+
+      - uses: actions/setup-java@v4
+        if: ${{ steps.release-please.outputs.release_created }}
+        with:
+          distribution: 'oracle'
+          java-version: '21'
+          cache: 'gradle'
+          cache-dependency-path: packages/consents/*.gradle
+
+      - uses: gradle/gradle-build-action@v2
+        if: ${{ steps.release-please.outputs.release_created }}
+        with:
+          gradle-version: 8.11.1
+
+      - name: Deploy to Production
+        if: ${{ steps.release-please.outputs.release_created }}
+        id: deployment
+        run: |
+          pnpm install
+          pnpm sst deploy --stage=production
+          echo "url=$(jq -r .consentsApiUrl .sst/outputs.json)" >> "$GITHUB_OUTPUT"
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: 'true'
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          CONSENTS_MONGODB_URI: ${{ secrets.CONSENTS_MONGODB_URI }}
+          CONSENTS_PROXY_TYPE: ${{ vars.CONSENTS_PROXY_TYPE }}
+
+      - name: Create Github Deployment
+        if: ${{ steps.release-please.outputs.release_created }}
+        uses: chrnorm/deployment-action@v2.0.7
+        with:
+          token: ${{ secrets.GH_PAT }}
+          environment: Production
+          environment-url: ${{ steps.deployment.outputs.url }}
+          initial-status: 'success'
+          production-environment: true
