@@ -1,0 +1,5 @@
+_dev
+.next
+node_modules
+public
+package-lock.json

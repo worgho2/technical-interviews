@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "target": "ES2021",
+        "module": "CommonJS",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "types": ["@abraham/reflection", "jest"],
+        "lib": ["ES6"],
+        "moduleResolution": "node",
+        "outDir": "dist",
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "sourceMap": true
+    },
+    "ts-node": {
+        "compilerOptions": {
+            "types": ["node"]
+        }
+    },
+    "include": ["src", "tests"]
+}

@@ -1,0 +1,35 @@
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release-please-step
+        with:
+          release-type: node
+          package-name: fpbr-api
+
+      - uses: actions/checkout/@v3
+        if: ${{ steps.release-please-step.outputs.release_created }}
+      - uses: actions/setup-node@v3
+        if: ${{ steps.release-please-step.outputs.release_created }}
+        with:
+          node-version: 16
+      - uses: AkhileshNS/heroku-deploy@v3.12.13
+        if: ${{ steps.release-please-step.outputs.release_created }}
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          usedocker: true
+          dontuseforce: true
